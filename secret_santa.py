@@ -20,17 +20,17 @@ def login_email():
     return server
 
 
-def send_mail(server, email_from, email_to, subject, text):
+def send_mail(server, email_to, subject, text):
     # Create a text/plain message
     msg = MIMEText(text)
 
     msg['Subject'] = subject
-    msg['From'] = email_from
+    msg['From'] = EMAIL_USERNAME
     msg['To'] = email_to
 
     # Send the message via our SMTP server, but don't include the
     # envelope header.
-    server.sendmail(email_from, [email_to, ], msg.as_string())
+    server.sendmail(EMAIL_USERNAME, [email_to, ], msg.as_string())
 
 
 def notify_players():
@@ -38,7 +38,6 @@ def notify_players():
     for player in players:
         send_mail(
             server,
-            EMAIL_USERNAME,
             player[DATA_EMAIL],
             EMAIL_SUBJECT,
             EMAIL_TEXT.format(
