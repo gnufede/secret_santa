@@ -3,7 +3,10 @@
 
 from smtplib import SMTP
 from itertools import permutations
+from random import shuffle
 from email.mime.text import MIMEText
+
+import logging
 
 from data import (
     EMAIL_SERVER, EMAIL_USERNAME, EMAIL_PASSWORD,
@@ -49,17 +52,27 @@ def notify_players():
 
 
 def find_valid_permutation():
-    player_permutations = permutations([x for x in range(len(players))])
+    player_list = [x for x in range(len(players))]
+    shuffle(player_list)
+    player_permutations = permutations(player_list)
     excluded = [player[DATA_EXCLUDED] for player in players]
     for sample_result in player_permutations:
         if all([k not in v for k, v in zip(sample_result, excluded)]):
             return sample_result
+    logging.error('No valid result found')
+    return None
 
 
 def find_secret_santas():
     permutation = find_valid_permutation()
+
+    if not permutation:
+        return False
+
     for player, secret_santa in zip(players, permutation):
         player[DATA_SECRET_SANTA] = players[secret_santa]
 
-find_secret_santas()
-notify_players()
+    return True
+
+if find_secret_santas():
+    notify_players()
